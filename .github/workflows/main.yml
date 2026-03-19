@@ -1,9 +1,9 @@
-name: Daily ETF MDD Check
+name: Daily Unified ETF Tracker
 
 on:
   schedule:
-    - cron: '0 13 * * *'  # 한국시간 기준 밤 10시 (서머타임에 따라 변동 가능)
-  workflow_dispatch:      # 수동 실행 버튼 활성화
+    - cron: '0 12 * * *'  # 뉴욕 기준 오전 8:00
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -25,4 +25,4 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python etf_tracker.py
+        run: python etf_unified_tracker.py
