@@ -1,0 +1,29 @@
+name: Daily ETF MDD Check
+
+on:
+  schedule:
+    # UTC 기준 12:00는 뉴욕 시간 오전 8:00입니다. (서머타임 기준)
+    - cron: '0 12 * * *'
+  workflow_dispatch: # 수동으로 실행해볼 수 있는 버튼을 만듭니다.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas pytz requests
+
+      - name: Run script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python etf_tracker.py
