@@ -2,19 +2,18 @@ name: Daily ETF MDD Check
 
 on:
   schedule:
-    # UTC 기준 12:00는 뉴욕 시간 오전 8:00입니다. (서머타임 기준)
-    - cron: '0 12 * * *'
-  workflow_dispatch: # 수동으로 실행해볼 수 있는 버튼을 만듭니다.
+    - cron: '0 13 * * *'  # 한국시간 기준 밤 10시 (서머타임에 따라 변동 가능)
+  workflow_dispatch:      # 수동 실행 버튼 활성화
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
