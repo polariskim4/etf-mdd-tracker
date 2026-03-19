@@ -2,7 +2,7 @@ name: Daily Unified ETF Tracker
 
 on:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '35 11 * * *'
   workflow_dispatch: 
 
 jobs:
