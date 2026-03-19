@@ -20,77 +20,55 @@ def send_telegram_message(message):
     payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML"}
     res = requests.post(url, data=payload)
     print(f"Telegram 전송 결과: {res.status_code}")
-
-def get_status(mdd_1y, rec_1y):
-    if mdd_1y <= -60.0 or rec_1y <= 15.0: return (3, "🔥 적극매수")
-    elif mdd_1y <= -30.0 or rec_1y <= 40.0: return (2, "🟢 매수")
-    else: return (1, "🟡 진입")
+    if res.status_code != 200:
+        print(f"상세 에러: {res.text}")
 
 def fetch_and_send():
     ny_tz = pytz.timezone('America/New_York')
     current_ny_time = datetime.now(ny_tz).strftime('%Y-%m-%d %H:%M:%S')
     
-    # 넉넉하게 4년치 데이터를 가져와서 기간별로 자릅니다 (데이터 유실 방지)
-    start_date = (datetime.now() - timedelta(days=4*365)).strftime('%Y-%m-%d')
     date_3y = (datetime.now() - timedelta(days=3*365))
-    date_2y = (datetime.now() - timedelta(days=2*365))
     date_1y = (datetime.now() - timedelta(days=1*365))
     
     results = []
-    print(f"데이터 수집 시작: {len(TICKERS)}개 종목")
-
     for ticker in TICKERS:
         try:
-            etf = yf.Ticker(ticker)
-            # 기간을 통째로 가져온 후 내부에서 처리 (성능 및 안정성 향상)
-            hist = etf.history(period="5y") 
-            if hist.empty or len(hist) < 10:
-                print(f"[{ticker}] 데이터가 부족합니다.")
-                continue
+            df = yf.download(ticker, period="5y", interval="1d", progress=False)
+            if df.empty: continue
             
-            cp = hist['Close'].iloc[-1]
+            cp = df['Close'].iloc[-1]
+            df.index = df.index.tz_localize(None)
+            
+            h_1y = df[df.index >= date_1y]
+            h_3y = df[df.index >= date_3y]
 
-            # 타임존 제거 (비교를 위해)
-            hist.index = hist.index.tz_localize(None)
+            mdd_1 = ((cp - h_1y['High'].max()) / h_1y['High'].max()) * 100
+            mdd_3 = ((cp - h_3y['High'].max()) / h_3y['High'].max()) * 100
             
-            # 기간별 데이터 슬라이싱
-            h_1y = hist[hist.index >= date_1y]
-            h_2y = hist[hist.index >= date_2y]
-            h_3y = hist[hist.index >= date_3y]
-
-            mdd = [
-                ((cp - h_1y['High'].max()) / h_1y['High'].max()) * 100,
-                ((cp - h_2y['High'].max()) / h_2y['High'].max()) * 100,
-                ((cp - h_3y['High'].max()) / h_3y['High'].max()) * 100
-            ]
-            gain = [
-                ((cp - h_1y['Low'].min()) / h_1y['Low'].min()) * 100,
-                ((cp - h_2y['Low'].min()) / h_2y['Low'].min()) * 100,
-                ((cp - h_3y['Low'].min()) / h_3y['Low'].min()) * 100
-            ]
+            # Score 계산 (정렬용)
+            score = 3 if mdd_1 <= -60.0 else (2 if mdd_1 <= -30.0 else 1)
+            status = "🔥 적극매수" if score == 3 else ("🟢 매수" if score == 2 else "🟡 진입")
             
-            score, label = get_status(mdd[0], gain[0])
             results.append({
-                "ETF": ticker, "Price": round(cp, 2), "Score": score, "Status": label,
-                "MDD": [round(x, 1) for x in mdd], "Gain": [round(x, 1) for x in gain]
+                "ETF": ticker, "Price": round(float(cp), 2), "Status": status, "Score": score,
+                "MDD1": round(float(mdd_1), 1), "MDD3": round(float(mdd_3), 1)
             })
-            print(f"[{ticker}] 처리 완료")
-        except Exception as e:
-            print(f"[{ticker}] 에러 발생: {e}")
+        except: continue
 
     if results:
-        df = pd.DataFrame(results).sort_values(by="Score", ascending=False)
-        msg = f"<b>🚀 통합 ETF 리포트 (추천순)</b>\n기준: {current_ny_time} (NYT)\n\n"
-        for _, row in df.iterrows():
-            msg += f"<b>{row['ETF']}</b> (${row['Price']}) {row['Status']}\n"
-            msg += f"🔻 <b>MDD:</b> 1년 {row['MDD'][0]}% / 2년 {row['MDD'][1]}% / 3년 {row['MDD'][2]}%\n"
-            msg += f"🔺 <b>Gain:</b> 1년 +{row['Gain'][0]}% / 2년 +{row['Gain'][1]}% / 3년 +{row['Gain'][2]}%\n"
-            msg += f"----------------------------------\n"
+        results.sort(key=lambda x: x['Score'], reverse=True)
         
-        send_telegram_message(msg)
-        print("모든 메시지 전송 완료!")
-    else:
-        print("전송할 결과 데이터가 없습니다.")
+        # 메시지를 15개씩 나누어 전송 (400 에러 방지)
+        chunk_size = 15
+        for i in range(0, len(results), chunk_size):
+            chunk = results[i:i + chunk_size]
+            msg = f"<b>🚀 ETF 리포트 ({i//chunk_size + 1}부)</b>\n"
+            msg += f"기준: {current_ny_time}\n\n"
+            for row in chunk:
+                msg += f"<b>{row['ETF']}</b> (${row['Price']}) {row['Status']}\n"
+                msg += f"🔻 MDD: 1년 {row['MDD1']}% / 3년 {row['MDD3']}%\n"
+                msg += f"----------------------------------\n"
+            send_telegram_message(msg)
 
 if __name__ == "__main__":
     fetch_and_send()
