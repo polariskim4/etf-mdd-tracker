@@ -10,7 +10,7 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 
 TICKERS = [
-    "AAPU", "AGQ", "AMDL", "AMZU", "APPX", "ASTX", "AVL", "AVGX", "BABX", "BITI", 
+    "AAPU", "AGQ", "AMDL", "AMZU", "APPX", "ASTX", "AVL", "AVGX", "BULZ", "BERZ", "BABX", "BITI", 
     "BITU", "BMNU", "BOIL", "BRZU", "CONL", "CURE", "CWEB", "DDM", "DFEN", "DIG", 
     "DOG", "DPST", "DRIP", "DRN", "DSPY", "DUSL", "EDC", "ERX", "ETHT", "EURL", 
     "FAS", "FAZ", "FBL", "FNGO", "FNGS", "FNGU", "GGLL", "GLL", "GUSH", "INDL", 
