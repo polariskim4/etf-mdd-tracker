@@ -10,18 +10,13 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 
 TICKERS = [
-    "AAPU", "AGQ", "AMDL", "AMZU", "APPX", "ASTX", "AVL", "AVGX", "BULZ", "BERZ", "BABX", "BITI", 
-    "BITU", "BMNU", "BOIL", "BRZU", "CONL", "CURE", "CWEB", "DDM", "DFEN", "DIG", 
-    "DOG", "DPST", "DRIP", "DRN", "DSPY", "DUSL", "EDC", "ERX", "ETHT", "EURL", 
-    "FAS", "FAZ", "FBL", "FNGO", "FNGS", "FNGU", "GGLL", "GLL", "GUSH", "INDL", 
-    "IONX", "JNUG", "KOLD", "KORU", "LABU", "LITX", "METU", "MEXX", "MQQQ", "MSFU", 
-    "MSTU", "MSTX", "MSTZ", "MULL", "MUU", "MVV", "NAIL", "NFXL", "NUGT", "NVDL", 
-    "NVDU", "NVDX", "ORCX", "PILL", "PLTU", "PSQ", "PTIR", "QID", "QLD", "RKLX", 
-    "ROM", "RWM", "SBIT", "SCO", "SDOW", "SDS", "SH", "SJB", "SNXX", "SOXL", 
-    "SOXS", "SPDN", "SPXL", "SPXS", "SPXU", "SPUU", "SSO", "SQQQ", "SVXY", "TBT", 
-    "TECL", "TMF", "TMV", "TNA", "TPOR", "TQQQ", "TSLL", "TSLQ", "TSLR", "TSLT", 
-    "TSMX", "TSPY", "TZA", "UCO", "UDOW", "UGL", "UPRO", "URTY", "USD", "UTSL", 
-    "UWM", "UYG", "YANG", "YINN", "ZSL"
+
+    "TQQQ", "SOXL", "SPXL", "UPRO", "TECL", "FAS", "FNGU", "TNA", "KORU", "NUGT", "BULZ", "BRZU", "AGQ" ,"UGL", "NUGT", "SCO", "MUU", "GGLL", "UCO",
+ "MSFU", "AMDL", "JNUG", 
+    "YINN", "UDOW", "LABU", "NAIL", "DFEN", "DPST", "ERX", "URTY", "EDC", "CURE", "CONL", "PLTU", "METU", "MSTU", "TSMX", "BMNU", "UYXY", "AMZU", "ORCX",
+
+    "BRZU", "EURL", "INDL", "DRN", "DUSL", "UTSL", "MEXX", "TPOR", "PILL", "CWEB", "TSLL", "NVDL", "BITU", "ETHT"
+
 ]
 
 def send_telegram_message(message):
